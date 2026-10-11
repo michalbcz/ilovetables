@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ilovetables fixtures</title>
+    <style>
+      body { font: 15px/1.4 system-ui, sans-serif; margin: 24px; max-width: 52rem; }
+      section { margin: 0 0 32px; }
+      table { border-collapse: collapse; }
+      td, th { border: 1px solid #bbb; padding: 4px 8px; }
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+    </style>
+  </head>
+  <body>
+    <h1>ilovetables fixtures</h1>
+
+    <section>
+      <h2>Data, numbers, and dates</h2>
+      <table id="data">
+        <thead>
+          <tr><th>Name</th><th>Amount</th><th>When</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Acme Corp</td><td>9</td><td>2024-01-02</td></tr>
+          <tr><td>Bee</td><td>10</td><td>2024-03-04</td></tr>
+          <tr><td>Cee</td><td>1,200</td><td>03/04/2024</td></tr>
+          <tr><td></td><td>€1.50</td><td>2024-02-31</td></tr>
+          <tr><td>Dee</td><td>1.234,56</td><td>2024-05-06</td></tr>
+          <tr><td>Formula</td><td>=1+1</td><td>@cmd</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Colspan, rowspan, footer</h2>
+      <table id="span">
+        <thead>
+          <tr><th colspan="2">Pair</th><th>Extra</th></tr>
+          <tr><th>A</th><th>B</th><th>C</th></tr>
+        </thead>
+        <tbody>
+          <tr><td rowspan="2">Left</td><td>1</td><td>Line<br />Two</td></tr>
+          <tr><td>3</td><td>4</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td>Foot</td><td>5</td><td>6</td></tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section>
+      <h2>Inputs</h2>
+      <table id="inputs">
+        <tr><th>Name</th><th>Qty</th><th>City</th></tr>
+        <tr>
+          <td><input value="Ada" /></td>
+          <td>9</td>
+          <td>
+            <select>
+              <option>Rome</option>
+              <option selected>Oslo</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><textarea>Note</textarea></td>
+          <td>10</td>
+          <td><img alt="flag" /> Oslo</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Header row of th</h2>
+      <table id="thfirst">
+        <tr><th>A</th><th>B</th></tr>
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>3</td><td>4</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Nested</h2>
+      <table id="outer">
+        <tr><th>H1</th><th>H2</th></tr>
+        <tr>
+          <td>
+            Keep
+            <table id="inner">
+              <tr><th>I1</th><th>I2</th></tr>
+              <tr><td>X</td><td>Y</td></tr>
+              <tr><td>Z</td><td>W</td></tr>
+            </table>
+          </td>
+          <td>Stay</td>
+        </tr>
+        <tr><td>More</td><td>Rows</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Role grid</h2>
+      <div role="grid" id="grid" aria-rowcount="40">
+        <div role="row">
+          <span role="columnheader">Name</span>
+          <span role="columnheader">Qty</span>
+        </div>
+        <div role="row">
+          <span role="gridcell">Ann</span>
+          <span role="gridcell">2</span>
+        </div>
+        <div role="row">
+          <span role="gridcell">Bo</span>
+          <span role="gridcell">3</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Navigation layout</h2>
+      <nav>
+        <table id="nav">
+          <tr><th>A</th><th>B</th></tr>
+          <tr><td><a href="#home">Home</a></td><td><a href="#docs">Docs</a></td></tr>
+          <tr><td><a href="#about">About</a></td><td><a href="#blog">Blog</a></td></tr>
+        </table>
+      </nav>
+    </section>
+
+    <section>
+      <h2>Link farm</h2>
+      <table id="links">
+        <tr><td><a href="#a">A</a></td><td><a href="#b">B</a></td></tr>
+        <tr><td><a href="#c">C</a></td><td><a href="#d">D</a></td></tr>
+        <tr><td><a href="#e">E</a></td><td><a href="#f">F</a></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Mostly empty</h2>
+      <table id="empty">
+        <tr><td></td><td></td></tr>
+        <tr><td></td><td>x</td></tr>
+        <tr><td></td><td></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Presentation</h2>
+      <table id="present" role="presentation">
+        <tr><th>A</th><th>B</th></tr>
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>3</td><td>4</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Open shadow</h2>
+      <div id="shadow-host"></div>
+    </section>
+
+    <section>
+      <h2>Names over numbers, no th</h2>
+      <table id="guess">
+        <tr><td>Name</td><td>Amount</td></tr>
+        <tr><td>Ann</td><td>10</td></tr>
+        <tr><td>Bo</td><td>3</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>No header to detect</h2>
+      <table id="plain">
+        <tr><td>Ann</td><td>red</td></tr>
+        <tr><td>Bo</td><td>blue</td></tr>
+        <tr><td>Cy</td><td>green</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Bulk</h2>
+      <table id="bulk">
+        <thead>
+          <tr><th>N</th><th>Label</th></tr>
+        </thead>
+        <tbody id="bulk-body"></tbody>
+      </table>
+      <p><button id="add-row" type="button">Add a row</button></p>
+    </section>
+
+    <script>
+      const host = document.querySelector("#shadow-host")
+      const root = host.attachShadow({ mode: "open" })
+      root.innerHTML =
+        '<table id="shadow-table"><thead><tr><th>Shadow</th><th>Value</th></tr></thead><tbody><tr><td>Inside</td><td>1</td></tr><tr><td>Root</td><td>2</td></tr></tbody></table>'
+      const body = document.querySelector("#bulk-body")
+      for (let i = 1; i <= 40; i += 1) {
+        const row = document.createElement("tr")
+        row.innerHTML = `<td>${i}</td><td>Row ${i}</td>`
+        body.append(row)
+      }
+      document.querySelector("#add-row").addEventListener("click", () => {
+        const row = document.createElement("tr")
+        const n = body.rows.length + 1
+        row.innerHTML = `<td>${n}</td><td>Added ${n}</td>`
+        body.append(row)
+      })
+    </script>
+  </body>
+</html>
