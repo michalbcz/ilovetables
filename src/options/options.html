@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ilovetables</title>
+    <link rel="stylesheet" href="../theme.css" />
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>ilovetables</h1>
+      <p class="lead">Sorting, search, and export stay in this browser. Nothing is uploaded.</p>
+      <form>
+        <label class="field"><input id="formula" type="checkbox" /> <span id="formula-label"></span></label>
+        <label class="field"><span id="separator-label"></span>
+          <select id="separator">
+            <option value=","></option>
+            <option value=";"></option>
+          </select>
+        </label>
+        <label class="field"><input id="fuzzy" type="checkbox" /> <span id="fuzzy-label"></span></label>
+        <h2 id="paused-heading"></h2>
+        <div id="hosts"></div>
+      </form>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

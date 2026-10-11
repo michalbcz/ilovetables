@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  background: var(--paper);
+}
+
+main {
+  max-width: 34rem;
+  padding: 24px 20px 40px;
+}
+
+h1 { font-size: 22px; margin: 0 0 8px; letter-spacing: -0.02em; }
+
+p.lead { margin: 0 0 18px; color: var(--quiet); }
+
+label.field, .choice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+select {
+  background: var(--field);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 4px 6px;
+}
+
+.host {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
