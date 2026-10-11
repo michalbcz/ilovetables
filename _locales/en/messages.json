@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "ilovetables",
+    "description": "Extension name shown in the browser."
+  },
+  "extDescription": {
+    "message": "Sort, filter, and export any table you are looking at. The page stays as it is, and nothing is uploaded.",
+    "description": "Extension description."
+  },
+  "actionTitle": {
+    "message": "Sort, filter, and export tables on this page",
+    "description": "Tooltip on the toolbar icon."
+  }
+}

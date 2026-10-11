@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "ilovetables",
+    "description": "Extension name shown in the browser."
+  },
+  "extDescription": {
+    "message": "Seřaďte, filtrujte a exportujte libovolnou tabulku na stránce. Stránka zůstane beze změny a nic se neodesílá.",
+    "description": "Extension description."
+  },
+  "actionTitle": {
+    "message": "Seřadit, filtrovat a exportovat tabulky na této stránce",
+    "description": "Tooltip on the toolbar icon."
+  }
+}
