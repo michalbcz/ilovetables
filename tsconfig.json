@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "lib": ["ES2022", "DOM"],
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["chrome"],
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "useDefineForClassFields": true
+  },
+  "include": ["src"]
+}
