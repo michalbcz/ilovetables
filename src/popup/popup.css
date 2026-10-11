@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  width: 320px;
+  background: var(--paper);
+}
+
+#app { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+.head { display: flex; justify-content: space-between; align-items: baseline; }
+
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+li { display: flex; gap: 4px; align-items: center; }
+
+button.row {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+p { margin: 0; color: var(--quiet); }
