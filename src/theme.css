@@ -1,0 +1,57 @@
+:root,
+:host {
+  --ink: #1a2332;
+  --paper: #f3f6f7;
+  --field: #ffffff;
+  --line: #c5d0d6;
+  --stamp: #d23b2a;
+  --stamp-ink: #fff8f6;
+  --quiet: #52616b;
+  color: var(--ink);
+  font-family: ui-sans-serif, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
+* { box-sizing: border-box; }
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: var(--field);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+button:hover { background: #e7eef1; }
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--stamp);
+  outline-offset: 2px;
+}
+
+button.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button.primary:hover { background: #2a3848; }
+
+button.quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--quiet);
+  padding-inline: 6px;
+}
+
+button.quiet:hover { color: var(--ink); background: transparent; }
