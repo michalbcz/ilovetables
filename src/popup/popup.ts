@@ -1,4 +1,6 @@
+import { fillIconButton } from "../shared/icons.ts"
 import { catalogs, t, uiLanguage, type MessageKey } from "../shared/i18n.ts"
+import { addIgnore, matchingPageRules, pageUrl, registrableDomain, removeIgnore, type IgnoreRule } from "../shared/ignore.ts"
 import type { ListResponse } from "../shared/messages.ts"
 import { loadSettings, saveSettings } from "../shared/settings.ts"
 
@@ -36,23 +38,33 @@ async function render() {
   head.append(title)
   app.append(head)
 
-  const pause = document.createElement("button")
-  pause.type = "button"
-  pause.textContent = listed.disabled ? t("resumeSite") : t("pauseSite")
-  pause.addEventListener("click", async () => {
-    const settings = await loadSettings()
-    const hosts = new Set(settings.disabledHosts)
-    if (hosts.has(listed.host)) hosts.delete(listed.host)
-    else hosts.add(listed.host)
-    await saveSettings({ ...settings, disabledHosts: [...hosts] })
-    await ext.tabs.sendMessage(tab.id!, { type: "rescan" }).catch(() => undefined)
-    await render()
-  })
-  app.append(pause)
-
-  if (listed.disabled) {
-    app.append(p(t("pausedHere")))
+  const settings = await loadSettings()
+  const href = tab.url ?? ""
+  const address = { href, host: listed.host }
+  const covered = href ? matchingPageRules(settings.ignores, address) : []
+  if (covered.length > 0) {
+    for (const rule of covered) app.append(ignoreRow(rule, tab.id))
     return
+  }
+  if (href) {
+    const actions = document.createElement("div")
+    actions.className = "actions"
+    let hostname = listed.host
+    try {
+      hostname = new URL(href).hostname
+    } catch {
+      hostname = listed.host.replace(/:\d+$/, "")
+    }
+    actions.append(
+      ignoreButton(t("ignorePage"), { scope: "url", target: pageUrl(href) }, tab.id),
+      ignoreButton(t("ignoreHost", { host: listed.host }), { scope: "host", target: listed.host }, tab.id),
+      ignoreButton(
+        t("ignoreDomain", { domain: registrableDomain(hostname) }),
+        { scope: "domain", target: registrableDomain(hostname) },
+        tab.id,
+      ),
+    )
+    app.append(actions)
   }
   if (listed.tables.length === 0) {
     const reason = listed.notes.length
@@ -69,27 +81,62 @@ async function render() {
     const open = document.createElement("button")
     open.type = "button"
     open.className = "row"
-    open.textContent = table.ignored
-      ? `${table.label}  ${t("hidden")}`
-      : `${table.label}  ${table.rows}×${table.cols}`
+    fillIconButton(
+      open,
+      "table",
+      table.ignored ? `${table.label}  ${t("hidden")}` : `${table.label}  ${table.rows}×${table.cols}`,
+    )
     open.addEventListener("click", async () => {
       await ext.tabs.sendMessage(tab.id!, { type: "open", id: table.id })
       window.close()
     })
     item.append(open)
-    if (table.ignored) {
-      const show = document.createElement("button")
-      show.type = "button"
-      show.textContent = t("show")
-      show.addEventListener("click", async () => {
-        await ext.tabs.sendMessage(tab.id!, { type: "unignore", id: table.id })
-        await render()
+    const toggle = document.createElement("button")
+    toggle.type = "button"
+    fillIconButton(toggle, table.ignored ? "show" : "ignore", table.ignored ? t("show") : t("ignore"))
+    toggle.addEventListener("click", async () => {
+      await ext.tabs.sendMessage(tab.id!, {
+        type: table.ignored ? "unignore" : "ignore",
+        id: table.id,
       })
-      item.append(show)
-    }
+      await render()
+    })
+    item.append(toggle)
     list.append(item)
   }
   app.append(list)
+}
+
+function ignoreButton(label: string, rule: IgnoreRule, tabId: number): HTMLButtonElement {
+  const button = document.createElement("button")
+  button.type = "button"
+  fillIconButton(button, "ignore", label)
+  button.addEventListener("click", async () => {
+    const settings = await loadSettings()
+    await saveSettings({ ...settings, ignores: addIgnore(settings.ignores, rule) })
+    await ext.tabs.sendMessage(tabId, { type: "rescan" }).catch(() => undefined)
+    await render()
+  })
+  return button
+}
+
+function ignoreRow(rule: IgnoreRule, tabId: number): HTMLElement {
+  const row = document.createElement("div")
+  row.className = "actions"
+  const note = p(
+    rule.scope === "url" ? t("ignoredPage") : rule.scope === "host" ? t("ignoredHost") : t("ignoredDomain"),
+  )
+  const stop = document.createElement("button")
+  stop.type = "button"
+  fillIconButton(stop, "show", `${t("stopIgnoring")}: ${rule.target}`)
+  stop.addEventListener("click", async () => {
+    const settings = await loadSettings()
+    await saveSettings({ ...settings, ignores: removeIgnore(settings.ignores, rule) })
+    await ext.tabs.sendMessage(tabId, { type: "rescan" }).catch(() => undefined)
+    await render()
+  })
+  row.append(note, stop)
+  return row
 }
 
 function reasonText(code: string): string {

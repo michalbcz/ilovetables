@@ -55,3 +55,34 @@ button.quiet {
 }
 
 button.quiet:hover { color: var(--ink); background: transparent; }
+
+button.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--field);
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  padding: 4px 10px;
+  box-shadow: 2px 2px 0 var(--ink);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+button.icon-btn:hover { background: #e7eef1; }
+
+button.icon-btn:active {
+  background: #d5e0e6;
+  box-shadow: none;
+}
+
+.btn-glyph {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.btn-glyph svg { display: block; }
+
+button.icon-btn .btn-label { min-width: 0; }

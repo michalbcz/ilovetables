@@ -33,12 +33,13 @@ Open `http://127.0.0.1:8765/fixtures/page.html`.
 - Words in the icon, panel, popup, options, and toolbar follow the browser language. English, German, and Czech are included. Any other language uses English.
 - Drag across cells, then Cmd-C or Ctrl-C. The paste is tab-separated cells from the selection.
 - Escape, the scrim, and Close all dismiss the panel.
-- Hide icon removes the icon. The toolbar popup still lists that table with Show.
+- Ignore this table removes the icon. The toolbar popup still lists that table with Show.
+- Drag the title bar. The panel moves and stays inside the window. Drag the corner, the left or right edge, or the bottom edge. The panel resizes, the grid still scrolls, and Close still works.
 - Narrow the window to about 390px wide. The panel stays on screen and Close still works.
 
-Popup (toolbar icon, top frame only): lists badged tables, a line when some layout tables were left alone, Pause this site, and Show for a hidden table. Right-click the page and choose `Open in ilovetables` to open the table under the pointer, including one the score skipped.
+Popup (toolbar icon, top frame only): lists badged tables, a line when some layout tables were left alone, Ignore this page, Ignore followed by the host (port included), Ignore followed by the domain and its subdomains, and Ignore or Show on each table. Right-click the page and choose `Open in ilovetables` to open the table under the pointer, including one the score skipped or a page that is ignored.
 
-Options: formula guard, CSV separator (comma, or semicolon labeled Excel (EU)), fuzzy on or off, and Resume for a paused site.
+Options: formula guard, CSV separator (comma, or semicolon labeled Excel (EU)), fuzzy on or off, and Stop ignoring for a table, page, subdomain, or domain.
 
 ## 1. Large table of links
 
@@ -213,8 +214,8 @@ The script inserts 40 rows. The icon appears without a reload. Click Add a row. 
 Run these on the fixture, then spot-check the popup on the ISO 3166 page.
 
 1. Toolbar popup lists the badged tables on the top frame. Hidden tables show Show. A layout table that was skipped is mentioned in one line, not offered as the main list.
-2. Hide icon on `#data`. The icon is gone. Show in the popup brings it back.
-3. Pause this site. Icons disappear. Resume on the options page brings them back.
+2. Ignore this table on `#data`. That icon is gone. The other fixture icons stay. Show in the popup brings it back. The options page lists that table under Ignored.
+3. Ignore this page from the popup. Icons on the fixture URL disappear. Stop ignoring brings them back. Ignore the domain `127.0.0.1` and its subdomains. Icons on that host disappear. Stop ignoring on the options page brings them back.
 4. Open automatically, on the panel, then reload. The same table opens once. A second table on the page does not pop open over it.
 5. After any of the above, view source or inspect `#data`. The extension has not replaced the `<table>`.
 

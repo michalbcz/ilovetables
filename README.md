@@ -59,7 +59,8 @@ Real-page cases and the expected results are in [TEST.md](TEST.md).
 - Click the icon on a table. Sort by clicking a heading. Shift-click a heading to add another sort. Search from the box labeled “Find in this table”.
 - Copy as and Save as remember a format. Click the label to do that default. Click the opener to choose Markdown or CSV; the choice becomes the default and runs. “Export all rows” ignores the search and keeps the sort.
 - Drag the icon when it covers something. The drag stays inside the table, and scrolling does not slide the icon: it keeps its spot and moves with the table. Hover says “Open this table. Drag to move.” The icon, the panel, and the toolbar follow the browser language: English, German, or Czech.
+- Drag the panel by its title bar. Drag the corner or an edge to resize it. The panel stays inside the window until you close it.
 - Drag across cells, then press Cmd-C or Ctrl-C to copy the selection.
-- Escape or Close dismisses the panel. Hide icon removes the icon. The toolbar popup can show it again.
+- Escape or Close dismisses the panel. Ignore this table hides that icon. The toolbar popup can show it again.
 - Right-click and choose “Open in ilovetables” to open the table under the pointer, including one that did not get an icon.
-- The toolbar popup can pause the extension on the current site. The options page turns formula guarding, the CSV separator, and fuzzy search on or off, and lists paused sites.
+- The toolbar popup can ignore this page, this host, or this domain and its subdomains. The options page turns formula guarding, the CSV separator, and fuzzy search on or off, and lists everything that is ignored.

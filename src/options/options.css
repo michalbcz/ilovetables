@@ -31,6 +31,22 @@ select {
   justify-content: space-between;
   gap: 12px;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0 10px;
   border-top: 1px solid var(--line);
 }
+
+.host span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.host span:not(.scope) { flex: 1 1 auto; }
+
+.host .scope {
+  flex: 0 0 auto;
+  color: var(--quiet);
+}
+
+.host button.icon-btn { flex: 0 0 auto; }

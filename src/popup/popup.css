@@ -8,17 +8,28 @@ body {
 
 .head { display: flex; justify-content: space-between; align-items: baseline; }
 
-ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 
-li { display: flex; gap: 4px; align-items: center; }
+li { display: flex; gap: 8px; align-items: center; }
 
 button.row {
   flex: 1;
   min-width: 0;
-  text-align: left;
-  white-space: nowrap;
+  justify-content: flex-start;
+}
+
+button.row .btn-label,
+.actions button.icon-btn .btn-label {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 p { margin: 0; color: var(--quiet); }
+
+.actions { display: flex; flex-direction: column; gap: 8px; }
+
+.actions button.icon-btn {
+  width: 100%;
+  justify-content: flex-start;
+}

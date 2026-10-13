@@ -6,6 +6,7 @@ import {
   tableKey,
   type RawTable,
 } from "../shared/extract.ts"
+import { matchingPageRules } from "../shared/ignore.ts"
 import { t } from "../shared/i18n.ts"
 import type { ListResponse, TableSummary, ToContent } from "../shared/messages.ts"
 import {
@@ -37,6 +38,7 @@ let settings: Settings = {
   separator: ",",
   fuzzy: true,
   disabledHosts: [],
+  ignores: [],
   copyAs: "markdown",
   saveAs: "csv",
 }
@@ -72,6 +74,10 @@ async function boot() {
     true,
   )
   window.addEventListener("resize", schedulePlace)
+  window.addEventListener("pageshow", schedulePlace)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") schedulePlace()
+  })
   window.addEventListener("scroll", scheduleHover, true)
   const ext = extensionApis()
   ext?.storage.onChanged.addListener(() => {
@@ -130,7 +136,7 @@ function knownDiv(root: ShadowRoot, className: string): HTMLDivElement {
 }
 
 function disabled(): boolean {
-  return settings.disabledHosts.includes(location.host)
+  return matchingPageRules(settings.ignores, { href: location.href, host: location.host }).length > 0
 }
 
 function scan() {
@@ -218,6 +224,8 @@ function makeBadge(): HTMLButtonElement {
   const button = document.createElement("button")
   button.type = "button"
   button.className = "badge"
+  // A hidden tab defers layout. Stay invisible until placeBadge has a real table box.
+  button.hidden = true
   button.innerHTML =
     '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1.2 1.2h11.6v11.6H1.2z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.2 5h11.6M1.2 9h11.6M5 1.2v11.6M9 1.2v11.6" stroke="currentColor" stroke-width="1.2"/></svg>'
   let drag: { x: number; y: number; left: number; top: number; moved: boolean } | null = null
@@ -346,10 +354,13 @@ const ICON = 22
 
 let placeQueued = false
 function schedulePlace() {
+  // Measuring while the document is hidden can report the origin. Place on the next visible frame.
+  if (document.hidden) return
   if (placeQueued) return
   placeQueued = true
   requestAnimationFrame(() => {
     placeQueued = false
+    if (document.hidden) return
     for (const entry of entries) placeBadge(entry)
   })
 }
@@ -510,6 +521,15 @@ async function handle(message: ToContent): Promise<ListResponse | { ok: true } |
   if (message.type === "open") {
     const entry = findEntry(message.id)
     if (entry) openEntry(entry)
+    return { ok: true }
+  }
+  if (message.type === "ignore") {
+    const entry = findEntry(message.id)
+    if (entry) {
+      memory = { ...memory, [entry.key]: { ...memory[entry.key], ignored: true } }
+      await saveMemory(location.host, memory)
+      scan()
+    }
     return { ok: true }
   }
   if (message.type === "unignore") {

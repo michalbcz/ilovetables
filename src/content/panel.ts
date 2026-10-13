@@ -17,8 +17,10 @@ import {
 } from "@tanstack/virtual-core"
 import { toHtmlTable, toTsv } from "../shared/clipboard.ts"
 import { toCsv } from "../shared/csv.ts"
+import { fitPanel, resizePanel, type Box, type ResizeEdge } from "./panel-frame.ts"
 import { applyHeader, type RawTable } from "../shared/extract.ts"
 import { matchRows } from "../shared/filter.ts"
+import { buttonLabel, fillIconButton, iconGlyph, type IconName } from "../shared/icons.ts"
 import { t } from "../shared/i18n.ts"
 import { toMarkdown } from "../shared/markdown.ts"
 import {
@@ -65,11 +67,27 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
   shadow.append(scrim, panel)
 
   const head = el("div", "head")
+  head.title = t("dragPanel")
+  const identity = el("div", "identity")
+  const drag = el("span", "drag")
+  drag.setAttribute("aria-hidden", "true")
+  drag.innerHTML =
+    '<svg width="10" height="14" viewBox="0 0 10 14"><path d="M1.5 1.5h2v2h-2zM6.5 1.5h2v2h-2zM1.5 6h2v2h-2zM6.5 6h2v2h-2zM1.5 10.5h2v2h-2zM6.5 10.5h2v2h-2z" fill="currentColor"/></svg>'
   const title = el("div", "title")
   title.textContent = t("panelTitle")
   const count = el("div", "count")
-  const close = button(t("close"), "quiet")
-  head.append(title, count, close)
+  identity.append(drag, title, count)
+  const close = button(t("close"), "", "close")
+  close.title = t("close")
+  head.append(identity, close)
+  const edgeLeft = el("div", "edge edge-w")
+  const edgeRight = el("div", "edge edge-e")
+  const edgeBottom = el("div", "edge edge-s")
+  const grip = el("div", "grip")
+  for (const handle of [edgeLeft, edgeRight, edgeBottom, grip]) {
+    handle.title = t("resizePanel")
+  }
+  grip.setAttribute("aria-label", t("resizePanel"))
 
   const tools = el("div", "tools")
   const search = document.createElement("input")
@@ -95,12 +113,67 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
   }
   const copySplit = splitButton("copy")
   const saveSplit = splitButton("save")
-  const refreshBtn = button(t("refresh"), "quiet")
-  const hideBtn = button(t("hideBadge"), "quiet")
+  const refreshBtn = button(t("refresh"), "", "refresh")
+  const hideBtn = button(t("hideBadge"), "", "ignore")
   const exportAllLabel = el("label", "choice")
   const exportAllInput = document.createElement("input")
   exportAllInput.type = "checkbox"
-  exportAllLabel.append(exportAllInput, document.createTextNode(t("exportAll")))
+  const exportAllInfo = document.createElement("button")
+  exportAllInfo.type = "button"
+  exportAllInfo.className = "info"
+  exportAllInfo.setAttribute("aria-label", t("exportAllTip"))
+  exportAllInfo.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 6.2V10.2M7 3.8h.01" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg>'
+  const exportAllHint = el("div", "tip hint")
+  exportAllHint.id = "export-all-tip"
+  exportAllHint.setAttribute("role", "tooltip")
+  exportAllHint.textContent = t("exportAllTip")
+  exportAllHint.hidden = true
+  exportAllInfo.addEventListener("click", (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+  })
+  let exportTipHover = false
+  let exportTipFocus = false
+  const placeExportTip = () => {
+    exportAllHint.hidden = false
+    exportAllHint.style.left = "0px"
+    exportAllHint.style.top = "0px"
+    const anchor = exportAllInfo.getBoundingClientRect()
+    const box = exportAllHint.getBoundingClientRect()
+    const gap = 6
+    const spaceAbove = anchor.top - gap
+    const spaceBelow = window.innerHeight - anchor.bottom - gap
+    let left = anchor.left + anchor.width / 2 - box.width / 2
+    let top = spaceBelow >= spaceAbove ? anchor.bottom + gap : anchor.top - box.height - gap
+    if (top < 4) top = 4
+    if (top + box.height > window.innerHeight - 4) top = Math.max(4, window.innerHeight - box.height - 4)
+    left = Math.min(Math.max(4, left), Math.max(4, window.innerWidth - box.width - 4))
+    exportAllHint.style.left = `${left}px`
+    exportAllHint.style.top = `${top}px`
+  }
+  const syncExportTip = () => {
+    if (exportTipHover || exportTipFocus) placeExportTip()
+    else exportAllHint.hidden = true
+  }
+  exportAllInfo.addEventListener("pointerenter", () => {
+    exportTipHover = true
+    syncExportTip()
+  })
+  exportAllInfo.addEventListener("pointerleave", () => {
+    exportTipHover = false
+    syncExportTip()
+  })
+  exportAllInfo.addEventListener("focus", () => {
+    exportTipFocus = true
+    syncExportTip()
+  })
+  exportAllInfo.addEventListener("blur", () => {
+    exportTipFocus = false
+    syncExportTip()
+  })
+  exportAllLabel.append(exportAllInput, document.createTextNode(t("exportAll")), exportAllInfo)
+  shadow.append(exportAllHint)
   const autoLabel = el("label", "choice")
   const autoInput = document.createElement("input")
   autoInput.type = "checkbox"
@@ -130,7 +203,7 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
   empty.textContent = t("nothingMatches")
   const foot = el("div", "foot")
   foot.textContent = t("foot")
-  panel.append(head, tools, note, scroller, empty, foot)
+  panel.append(head, tools, note, scroller, empty, foot, edgeLeft, edgeRight, edgeBottom, grip)
 
   let memoryState: TableMemory = {
     ...session.memory,
@@ -374,10 +447,12 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
   }
 
   const flash = (control: HTMLButtonElement, label: string) => {
-    const previous = control.textContent
-    control.textContent = label
+    const slot = control.querySelector(".btn-label")
+    const node = slot instanceof HTMLElement ? slot : control
+    const previous = node.textContent
+    node.textContent = label
     window.setTimeout(() => {
-      control.textContent = previous
+      node.textContent = previous
     }, 1200)
   }
 
@@ -460,6 +535,36 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
 
   rebuild()
   place(panel, session.element.getBoundingClientRect())
+  const viewport = () => ({ width: window.innerWidth, height: window.innerHeight })
+  const applyFrame = (box: Box) => {
+    panel.style.left = `${Math.round(box.left)}px`
+    panel.style.top = `${Math.round(box.top)}px`
+    panel.style.width = `${Math.round(box.width)}px`
+    panel.style.height = `${Math.round(box.height)}px`
+  }
+  const readFrame = (): Box => {
+    const rect = panel.getBoundingClientRect()
+    return { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+  }
+  applyFrame(fitPanel(readFrame(), viewport()))
+  const onWindowResize = () => applyFrame(fitPanel(readFrame(), viewport()))
+  window.addEventListener("resize", onWindowResize)
+  trackPointer(head, (event) => {
+    const target = event.target
+    return target instanceof Element && !target.closest("button, a, input, select, textarea, label")
+  }, (start, dx, dy) => {
+    head.classList.add("moving")
+    applyFrame(fitPanel({ ...start, left: start.left + dx, top: start.top + dy }, viewport()))
+  }, () => head.classList.remove("moving"))
+  const trackResize = (handle: HTMLElement, edge: ResizeEdge) => {
+    trackPointer(handle, () => true, (start, dx, dy) => {
+      applyFrame(resizePanel(start, dx, dy, edge, viewport()))
+    })
+  }
+  trackResize(edgeLeft, "left")
+  trackResize(edgeRight, "right")
+  trackResize(edgeBottom, "bottom")
+  trackResize(grip, "corner")
   search.focus()
 
   function splitButton(kind: "copy" | "save"): {
@@ -468,6 +573,7 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
   } & SplitMenu {
     const root = el("div", "split")
     const main = button("", "split-main")
+    main.append(iconGlyph(kind === "copy" ? "copy" : "save"), buttonLabel(""))
     const open = button("", "split-open")
     open.setAttribute("aria-label", t("chooseFormat"))
     open.setAttribute("aria-haspopup", "menu")
@@ -488,7 +594,8 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
     const paint = () => {
       const format = current()
       const name = format === "csv" ? t("csv") : t("markdown")
-      main.textContent = t(kind === "copy" ? "copyAs" : "saveAs", { format: name })
+      const slot = main.querySelector(".btn-label")
+      if (slot) slot.textContent = t(kind === "copy" ? "copyAs" : "saveAs", { format: name })
       markdownItem.setAttribute("aria-current", format === "markdown" ? "true" : "false")
       csvItem.setAttribute("aria-current", format === "csv" ? "true" : "false")
     }
@@ -545,11 +652,49 @@ export function mountPanel(shadow: ShadowRoot, session: PanelSession): () => voi
   return () => {
     window.removeEventListener("pointermove", move)
     window.removeEventListener("pointerup", up)
+    window.removeEventListener("resize", onWindowResize)
     shadow.removeEventListener("keydown", onKey)
     shadow.removeEventListener("pointerdown", onPointerDown)
     stopVirtual()
     scrim.remove()
     panel.remove()
+    exportAllHint.remove()
+  }
+
+  function trackPointer(
+    handle: HTMLElement,
+    allow: (event: PointerEvent) => boolean,
+    move: (start: Box, dx: number, dy: number) => void,
+    end?: () => void,
+  ) {
+    let active: { id: number; x: number; y: number; box: Box } | null = null
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || !allow(event)) return
+      event.preventDefault()
+      const rect = panel.getBoundingClientRect()
+      active = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        box: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+      }
+      try {
+        handle.setPointerCapture(event.pointerId)
+      } catch {
+        /* A synthetic event cannot capture the pointer. */
+      }
+    })
+    handle.addEventListener("pointermove", (event) => {
+      if (!active || event.pointerId !== active.id) return
+      move(active.box, event.clientX - active.x, event.clientY - active.y)
+    })
+    const stop = (event: PointerEvent) => {
+      if (!active || event.pointerId !== active.id) return
+      active = null
+      end?.()
+    }
+    handle.addEventListener("pointerup", stop)
+    handle.addEventListener("pointercancel", stop)
   }
 }
 
@@ -628,11 +773,12 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node
 }
 
-function button(label: string, className = ""): HTMLButtonElement {
+function button(label: string, className = "", icon?: IconName): HTMLButtonElement {
   const node = document.createElement("button")
   node.type = "button"
-  node.textContent = label
   if (className) node.className = className
+  if (icon) fillIconButton(node, icon, label)
+  else node.textContent = label
   return node
 }
 

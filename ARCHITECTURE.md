@@ -18,7 +18,7 @@ flowchart LR
   page --> content
   content --> panel
   bg -->|"open the frame under the pointer"| content
-  popup -->|"list, open, show, pause"| content
+  popup -->|"list, open, ignore"| content
   content --> store
   popup --> store
   options --> store
@@ -29,8 +29,8 @@ flowchart LR
 | Content script | `src/content/` | Runs in every frame. Scans the page, draws the icon and the panel in an open shadow host (`#ilovetables-root`), and answers messages. |
 | Shared logic | `src/shared/` | Turns a table into a string matrix, parses values, filters, and builds CSV, Markdown, and clipboard text. No widgets. |
 | Background | `src/background.ts` | Adds the right-click command and sends it to the frame that was clicked. |
-| Popup | `src/popup/` | Lists tables in the top frame, pauses the site, and shows a hidden table again. |
-| Options | `src/options/` | Formula guard, CSV separator, fuzzy search, and the list of paused sites. |
+| Popup | `src/popup/` | Lists tables in the top frame. Ignores one table, this page, this host, or this domain, and shows a hidden table again. |
+| Options | `src/options/` | Formula guard, CSV separator, fuzzy search, and the list of ignored tables, pages, hosts, and domains. |
 
 The popup talks to the top frame only. A table inside an iframe is opened from the right-click menu, which passes that frame’s id.
 
@@ -40,7 +40,7 @@ The popup talks to the top frame only. A table inside an iframe is opened from t
 2. Each `<table>` and each `role="table"`, `role="grid"`, or `role="treegrid"` becomes a rectangle of strings. Spanned text is repeated. A nested table stays its own grid. Closed shadow roots, canvas, PDF, images, and unroled div layouts are ignored.
 3. Layout tables are dropped: navigation and footer chrome, presentation roles, tiny tables, mostly empty tables, and headerless grids that are almost entirely single links. A real header keeps a table even when the cells are links.
 4. Each kept table gets an icon in the extension shadow. The icon sits on that table, stays inside its bounds, and scrolls with the page. Hover names the action and blinks a rectangle over the table. The page element is not restyled.
-5. A click copies the matrix into the panel. Sorting, fuzzy search, and export run on that copy. The panel grid is virtualized and read-only. Refresh reads the live DOM again.
+5. A click copies the matrix into the panel. Sorting, fuzzy search, and export run on that copy. The panel grid is virtualized and read-only. Refresh reads the live DOM again. While the panel is open it can be dragged and resized; that frame lasts until it closes.
 
 Header detection prefers `<thead>` or an all-`<th>` first row. Otherwise it guesses one header row only on a strong label-over-values signal. When it guesses none, the panel can mark the first row as the column names.
 
@@ -56,8 +56,10 @@ CSV is RFC 4180 text with CRLF. A saved file starts with a UTF-8 BOM; a clipboar
 
 Everything stays in `chrome.storage.local` on this browser.
 
-- One settings object for all sites: formula guard, CSV separator, fuzzy search, paused hosts, and the Copy as / Save as defaults.
-- One memory record per host, keyed by the table’s suggested headers: hidden, header-row override, column-type override, and whether to open that table once when the page loads.
+- One settings object for all sites: formula guard, CSV separator, fuzzy search, the Copy as / Save as defaults, and ignore rules for a page URL, a host, or a registrable domain.
+- One memory record per host, keyed by the table’s suggested headers: ignored, header-row override, column-type override, and whether to open that table once when the page loads.
+
+A page, host, or domain rule hides every icon on the pages it covers. A table rule hides that one grid on its host. The options page lists both and can remove them. An ignored page can still be opened from the right-click command.
 
 The icon’s dragged position lasts for the page session only.
 

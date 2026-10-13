@@ -11,6 +11,7 @@ export type ToContent =
   | { type: "open"; id: string }
   | { type: "open-context" }
   | { type: "rescan" }
+  | { type: "ignore"; id: string }
   | { type: "unignore"; id: string }
 
 export type ListResponse = {
