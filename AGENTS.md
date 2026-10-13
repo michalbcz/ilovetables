@@ -4,7 +4,11 @@ ilovetables is a Manifest V3 extension (Chrome and Firefox) that badges a data t
 
 Install and reload steps for a person are in [README.md](README.md). Page-by-page checks are in [TEST.md](TEST.md). The current shape of the system is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-When a change moves a boundary, or changes detection, storage, export, packaging, or permissions, or when such an approach is rejected, follow the `adr` skill. Add `docs/adr/NNNN-*.md` and make `ARCHITECTURE.md` match the code. Keep history, including rejections, in the ADR. Do not turn `ARCHITECTURE.md` into a changelog.
+When a change moves a boundary, or changes detection, storage, export, packaging, or permissions, or when such an approach is rejected, follow the `adr` skill (`.agents/skills/adr/SKILL.md`). Add `docs/adr/NNNN-*.md` and make `ARCHITECTURE.md` match the code. Keep history, including rejections, in the ADR. Do not turn `ARCHITECTURE.md` into a changelog.
+
+## Agent files
+
+`AGENTS.md` and `.agents/skills/` are the sources. Edit those. `CLAUDE.md` holds only `@AGENTS.md`, which Claude Code expands. Codex and Grok read `AGENTS.md` and `.agents/skills/` directly. Claude Code reads only `.claude/skills/`, so each skill has a pointer `.claude/skills/<name>/SKILL.md`. A pointer repeats the source frontmatter word for word, and its body only says to read the source file. When you add a skill or change its frontmatter, update its pointer. `tests/agent-files.test.ts` fails when they differ. Do not use symlinks. Do not copy a skill body into a pointer.
 
 ## Before you finish a code change
 
